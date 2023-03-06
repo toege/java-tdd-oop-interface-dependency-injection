@@ -47,7 +47,7 @@ public class Scrabble {
 }
 ```
 
-An `Alphabet` class is injected into the `Scrabble` class. The Scrabble classes uses the Alphabet class to get the numeric point value for a single character. This works fine for the English alphabet, but what if we wanted our Scrabble class to go international? As it is right now, we would have to keep adding every type of letter into a single Alphabet class. That would be difficult to maintain.
+An `Alphabet` class is injected into the `Scrabble` class. The Scrabble class uses the Alphabet class to get the numeric point value for a single character. This works fine for the English alphabet, but what if we wanted our Scrabble class to go international? As it is right now, we would have to keep adding every type of letter into a single Alphabet class. That would be difficult to maintain.
 
 Instead of injecting a concrete class, we can inject something known as an *interface*. An interface is a blueprint for classes, it's like a contract. It essentially provides a promise that the classes that implement the interface **will** contain certain methods that return specific values.
 
@@ -113,75 +113,25 @@ What we've essentially built is one blueprint (the PowerSupply interface) that d
 
 The computer class shouldn't care about the exact type of the power supply, all it should care about is that the `getWattage` method exists and returns an int.
 
-Let's revisit the Scrabble solution. If we want to provide multiple types of alphabets to our program, we'd create an interface that promises to return a specific data type:
-
-```java
-interface Alphabet {
-    Map<Character, Integer> getLetterScores();
-}
-```
-
-The scrabble class itself doesn't need to change at all! Now we can easily provide different alphabets:
-
-```java
-public class EnglishAlphabet implements Alphabet {
-    public Map<Character, Integer> getLetterScores() {
-        return new HashMap<>(){{
-            put('a', 1);
-            put('b', 3);
-            put('c', 3);
-            // etc...
-        }};
-    }
-}
-
-public class GreekAlphabet implements Alphabet {
-    public Map<Character, Integer> getLetterScores() {
-        return new HashMap<>(){{
-            put('α', 1);
-            put('β', 3);
-            put('γ', 3);
-            // etc...
-        }};
-    }
-}
-
-public class Scrabble {
-    Map<Character, Integer> letterScores;
-    
-    public Scrabble(Alphabet alphabet) {
-        this.letterScores = alphabet.getLetterScores();
-    }
-    
-    public int score(String word) {
-        int total = 0;
-
-        for (char ch : word.toCharArray()) {
-            int score = this.letterScores.get(ch);
-            total += score;
-        }
-
-        return total;
-    }
-}
-
-public class Program {
-    public static void main() {
-        Alphabet english = new EnglishAlphabet();
-        Alphabet greek = new GreekAlphabet();
-        
-        Scrabble englishScrabble = new Scrabble(english);
-        englishScrabble.score("hello world");
-        
-        Scrabble greekScrabble = new Scrabble(greek);
-        greekScrabble.score("γεια σου κόσμε");
-    }
-}
-```
-
 ## Exercise
 
+It's time to revisit the scrabble challenge! There is a solution already provided in the `./src/main/java/com/booleanuk/core/` directory. Right now, it has a dependency on an external class: `Alphabet`.
 
+Your task is to improve the solution using dependency injection with an interface. This time, you'll need to modify the tests as you implement your solution. You might even need to write new tests!
+
+## Requirements
+
+- The scrabble class must not instantiate any other class directly
+- Any class that gets injected into the scrabble class must be an interface
+- The logic for the `score` method must not change
+- We must be able to score words for the following languages:
+  - English
+  - Russian
+  - Greek
+- Don't worry about dealing with actual Russian & Greek words, we only care about sequences of individual lower-cased characters for the sake of this exercise
+- You can find a table listing characters and scores for Russian and Greek below:
+  - [Greek](./GREEK_LETTER_SCORES.md)
+  - [Russian](./RUSSIAN_LETTER_SCORES.md)
 
 ## Test Output
 
@@ -195,6 +145,6 @@ In the sample screenshot below, we've tried to complete the first step of the ex
 
 At the top, we see `expected: <32> but was: <33>`. This means the test expected the value to be 32, but the value the student provided was 33. We can see this in the code snippets at the top of the screenshot.
 
-In the stack trace itself, we see this line: `at app//com.booleanuk.core.ExerciseTest.shouldBeAged32(ExerciseTest.java:20)`. This is helpful! This tells us the exact line in the ExerciseTest.java file (line 20) where the failure happened, as well as the method name (shouldBeAged32), helping us to identify where the issue began. This is the kind of thing you need to look for; a relevant file name, method name, class name and line number to give you a good starting point for debugging.
+In the stack trace itself, we see this line: `at app//com.booleanuk.core.ScrabbleTest.shouldBeAged32(ExerciseTest.java:20)`. This is helpful! This tells us the exact line in the ExerciseTest.java file (line 20) where the failure happened, as well as the method name (shouldBeAged32), helping us to identify where the issue began. This is the kind of thing you need to look for; a relevant file name, method name, class name and line number to give you a good starting point for debugging.
 
 ![](./assets/test-failure.PNG)
